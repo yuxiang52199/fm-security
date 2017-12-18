@@ -16,7 +16,7 @@ import com.fm.security.core.validate.code.impl.AbstractValidateCodeProcessor;
  * @author yuxiang
  *
  */
-@Component("imageCodeProcessor")
+@Component("imageValidateCodeProcessor")
 public class ImageCodeProcessor extends AbstractValidateCodeProcessor<ImageCode> {
 
 	@Override

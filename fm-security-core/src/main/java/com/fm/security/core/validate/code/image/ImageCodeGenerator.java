@@ -15,7 +15,7 @@ import com.fm.security.core.validate.code.ValidateCodeGenerator;
 
 /**
  * 图片验证码生成器
- * @author Administrator
+ * @author yuxiang
  *
  */
 //@Component("imageCodeGenerator")

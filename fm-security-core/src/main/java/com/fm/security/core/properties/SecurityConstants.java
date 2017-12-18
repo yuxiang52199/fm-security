@@ -4,7 +4,8 @@
 package com.fm.security.core.properties;
 
 /**
- * @author Administrator
+ * 自定义Security常量
+ * @author yuxiang
  *
  */
 public interface SecurityConstants {

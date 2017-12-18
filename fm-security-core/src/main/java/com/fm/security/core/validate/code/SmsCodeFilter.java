@@ -28,7 +28,6 @@ import com.fm.security.core.properties.SecurityProperties;
 import com.fm.security.core.validate.code.image.ImageCode;
 
 
-
 /**
  * 
  * @author yuxiang
@@ -109,6 +108,7 @@ public class SmsCodeFilter extends OncePerRequestFilter implements InitializingB
 	}
     
 	private void validate(ServletWebRequest request)throws ServletRequestBindingException {
+
 		String key=ValidateCodeController.SESSION_KEY+"SMS";
 		System.out.println("保存Key="+key);
 		// 获取session中的 验证码

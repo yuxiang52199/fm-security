@@ -17,61 +17,83 @@ import org.springframework.security.web.authentication.rememberme.PersistentToke
 
 import com.fm.security.browser.authentication.FmAuthenticationFailureHandler;
 import com.fm.security.browser.authentication.FmAuthenticationSuccessHandler;
+import com.fm.security.core.authentication.AbstractChannelSecurityConfig;
 import com.fm.security.core.authentication.mobile.SmsCodeAuthenticationSecurityConfig;
+import com.fm.security.core.properties.SecurityConstants;
 import com.fm.security.core.properties.SecurityProperties;
 import com.fm.security.core.validate.code.SmsCodeFilter;
 import com.fm.security.core.validate.code.ValidateCodeFilter;
+import com.fm.security.core.validate.code.ValidateCodeSecurityConfig;
 
 /**
  * @author yuxiang
  * 浏览器SecurityConfig相关配置
  */
 @Configuration
-public class BrowserSecurityConfig extends WebSecurityConfigurerAdapter {
-    //自定义security配置属性
+public class BrowserSecurityConfig extends AbstractChannelSecurityConfig  {
+	
+	/**
+	 * security配置属性
+	 */
 	@Autowired
 	private SecurityProperties securityProperties;
-	//登录成功处理器
-	@Autowired
-	private FmAuthenticationSuccessHandler fmAuthenticationSuccessHandler;
-	//登录失败处理器
-	@Autowired
-	private FmAuthenticationFailureHandler fmAuthenticationFailureHandler;
-	//用户服务
-	@Autowired 
-	private UserDetailsService userDetailsService;
 	
-	//创建密码加密方式
-	@Bean
-	public PasswordEncoder passwordEncoder()
-	{
-		return new BCryptPasswordEncoder();
-	}
-	
+	/**
+	 * 数据源
+	 */
 	@Autowired
 	private DataSource dataSource;
-	/**
-	 * 读写数据库
-	 * @return
-	 */
-	@Bean
-	public PersistentTokenRepository persistentTokenRepository(){
-		JdbcTokenRepositoryImpl tokenRepository=new JdbcTokenRepositoryImpl();
-		tokenRepository.setDataSource(dataSource);	
-		//自动创建表
-		//tokenRepository.setCreateTableOnStartup(true);	
-		return tokenRepository;		
-	}
 	
+	/**
+	 * 登录服务
+	 */
 	@Autowired
-	SmsCodeAuthenticationSecurityConfig smsCodeAuthenticationSecurityConfig;
+	private UserDetailsService userDetailsService;
+	
+	/**
+	 * 验证码配置
+	 */
+	@Autowired
+	private ValidateCodeSecurityConfig validateCodeSecurityConfig;
+	/**
+	 * 短信验证码配置
+	 */
+	@Autowired
+	private SmsCodeAuthenticationSecurityConfig smsCodeAuthenticationSecurityConfig;
+	
+	
+	
+	
 	/*
 	 * 配置浏览器授权
 	 * 
 	 * */
 	@Override
-	protected void configure(HttpSecurity http) throws Exception {		
-		//初始化验证码拦截器
+	protected void configure(HttpSecurity http) throws Exception {	
+		
+       applyPasswordAuthenticationConfig(http);
+		
+        http.apply(validateCodeSecurityConfig)
+				.and()
+			.apply(smsCodeAuthenticationSecurityConfig)
+				.and()
+			.rememberMe()
+				.tokenRepository(persistentTokenRepository())
+				.tokenValiditySeconds(securityProperties.getBrowser().getRemeberSeconds())
+				.userDetailsService(userDetailsService)
+				.and()
+			.authorizeRequests()
+				.antMatchers(
+					SecurityConstants.DEFAULT_UNAUTHENTICATION_URL,
+					SecurityConstants.DEFAULT_LOGIN_PROCESSING_URL_MOBILE,
+					securityProperties.getBrowser().getLoginPage(),
+					SecurityConstants.DEFAULT_VALIDATE_CODE_URL_PREFIX+"/*")
+					.permitAll()
+				.anyRequest()
+				.authenticated()
+				.and()
+			.csrf().disable();
+		/*//初始化验证码拦截器
 		ValidateCodeFilter validateCodeFilter = new ValidateCodeFilter();
 		//设置验证失败处理器
 		validateCodeFilter.setAuthenticationFailureHandler(fmAuthenticationFailureHandler);
@@ -108,7 +130,23 @@ public class BrowserSecurityConfig extends WebSecurityConfigurerAdapter {
 		.csrf().disable()
 		.apply(smsCodeAuthenticationSecurityConfig)
 		;//把跨站防护功能取消
-	}
+*/	}
+	
+	//创建密码加密方式
+		@Bean
+		public PasswordEncoder passwordEncoder()
+		{
+			return new BCryptPasswordEncoder();
+		}
+		
+		@Bean
+		public PersistentTokenRepository persistentTokenRepository(){
+			JdbcTokenRepositoryImpl tokenRepository=new JdbcTokenRepositoryImpl();
+			tokenRepository.setDataSource(dataSource);	
+			//自动创建表
+			//tokenRepository.setCreateTableOnStartup(true);	
+			return tokenRepository;		
+		}
 	
 
 }

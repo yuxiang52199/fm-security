@@ -16,6 +16,7 @@ public class SecurityProperties {
 	//验证码属性
 	private ValidateCodeProperties code = new ValidateCodeProperties();
 
+	
 	public BrowserProperties getBrowser() {
 		return browser;
 	}

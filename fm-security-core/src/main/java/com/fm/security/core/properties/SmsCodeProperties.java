@@ -1,5 +1,10 @@
 package com.fm.security.core.properties;
 
+/**
+ * 短信验证码属性
+ * @author yuxianbg
+ *
+ */
 public class SmsCodeProperties {
 
 	

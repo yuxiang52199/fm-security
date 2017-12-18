@@ -16,7 +16,7 @@ import com.fm.security.core.validate.code.impl.AbstractValidateCodeProcessor;
  * @author yuxiang
  *
  */
-@Component("smsCodeProcessor")
+@Component("smsValidateCodeProcessor")
 public class SmsCodeProcessor extends AbstractValidateCodeProcessor<ValidateCode> {
 
 	/**
@@ -34,6 +34,8 @@ public class SmsCodeProcessor extends AbstractValidateCodeProcessor<ValidateCode
 		String mobile = ServletRequestUtils.getRequiredStringParameter(request.getRequest(), "mobile");
 		smsCodeSender.send(mobile, validateCode.getCode());
 	}
+
+
 
 
 }
